@@ -1,0 +1,38 @@
+version: "3.8"
+
+services:
+  
+  frontend:
+    build: ./frontend
+    ports: 
+      - 3000:3000
+    volumes: # we share our directories so that we instantly see changes between
+      - ./frontend:/app # local and container (it overrides files)
+  
+  backend:
+    build: ./backend
+    ports:
+      - 3001:3001
+    environment: # announce ENV variables 
+        DB_URL: mongodb://mongo/vidly #mongo is a DNS name of a host
+    volumes: # DON'T DELETE node_modules. All directories must be identical
+      - ./backend:/app #mapping directory of backend to a container's app
+    command: ./docker-entrypoint.sh
+  
+  mongo: # a host the backend connects to
+    image: mongo:4.0.25-xenial
+    ports:
+      - 27017:27017
+    volumes:
+      - vidly:/data/db
+
+volumes:
+  vidly:
+
+
+  # if we want to run a test service we may use an image of our frontend
+  #frontend-tests:
+  #  image: vidly_frontend
+  #  volumes:
+  #    - ./frontend:/app
+  #  command: npm test
